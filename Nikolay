@@ -1,0 +1,68 @@
+//Задание по 2-ой практической работе посвящённой потокам ЯКОВЛЕВ НИКОЛАЙ БСБО-05-19
+
+package com.company;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+class Main {
+
+    static String s1 = "1115dd800feaacefdf481f1f9070374a2a81e27880f187396db67958b207cbad";
+    static String s2 = "3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b";
+    static String s3 = "74e1bb62f8dabb8125a58852b63bdf6eaef667cb56ac7f7cdba6d7305c50a22f";
+
+    static class JThread extends Thread {
+        char x, y;
+
+        JThread(String name, char x, char y) {
+            super(name);
+            this.x = x;
+            this.y = y;
+
+        }
+
+        public void run() {
+            try {
+                for (char i = x; i <= y; i++) {
+                    for (char j = 'a'; j <= 'z'; j++) {
+                        for (char a = 'a'; a <= 'z'; a++) {
+                            for (char b = 'a'; b <= 'z'; b++) {
+                                for (char c = 'a'; c <= 'z'; c++) {
+                                    String pass = Character.toString(i) + Character.toString(j)
+                                            + Character.toString(a) + Character.toString(b) + Character.toString(c);
+
+                                    MessageDigest md = MessageDigest.getInstance("SHA-256");
+                                    byte[] hashInBytes = md.digest(pass.getBytes(StandardCharsets.UTF_8));
+                                    StringBuilder hash = new StringBuilder();
+                                    for (byte m : hashInBytes) {
+                                        hash.append(String.format("%02x", m));
+                                    }
+
+                                    if ((s1.equals(hash.toString())) || (s2.equals(hash.toString())) || (s3.equals(hash.toString()))) {
+                                        System.out.printf("Пароль: %s\n", pass);
+
+                                        System.out.printf("Его Хэш (SHA-256): %s\n", hash.toString());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (NoSuchAlgorithmException e) {
+                System.out.println("Поток прервался");
+            }
+            System.out.printf("%s завершился\n", Thread.currentThread().getName());
+        }
+    }
+
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        new JThread("Поток 1-ый" , 'a', 'm').start();
+        new JThread("Поток 2-ой", 'n', 'z').start();
+
+        //П.С количество потоков неограниченно, но для примера я создал 2
+
+        System.out.println("Потоки JThread запустились \n");
+    }
+}
+
+
